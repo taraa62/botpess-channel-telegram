@@ -1,3 +1,6 @@
+This test is intended to create the ability to create a telegram messenger dynamically configured interface and write callback functions.
+Functions are called correctly, but the flow starts from the beginning.
+
 Steps:
 1. Add two flows: "main" + "flows2"
 2. Create a chain of nodes
