@@ -1,0 +1,142 @@
+This test is intended to create the ability to create a telegram messenger dynamically configured interface and write callback functions.
+Functions are called correctly, but the flow starts from the beginning.
+
+Steps:
+1. Add two flows: "main" + "flows2"
+2. Create a chain of nodes
+main>node1=>flow2>node1>node2>run script for telegram
+console log call back in node:
+====> flow: main | step: 1
+====> flow: main | step: 2
+====> flow: flow2 | step: 1
+====> flow: flow2 | step: 2
+====> flow: flow2 | step: 3
+---- here I down on bottun-----
+------====
+t62callback   |   450147911   |450147911   | telegram
+------====
+---------nextOne-------------------
+Promise {}
+///////////////////////////////
+====> flow: main | step: 1
+====> flow: main | step: 2
+...
+...
+
+------------------------------------
+action appent to node3 -flow2
+test-telegram2.js
+```
+async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state){
+/** Your code starts below */
+
+const callBackController = require("./../utils/base-action.js");
+  const telegramConf = require("./../utils/sceneUtilTelegram.js")
+  /**
+   * Small description of your action
+   * @title The title displayed in the flow editor
+   * @category Category
+   * @author Your_Name
+   * @param {string} name - An example string variable
+   * @param {any} value - Another Example value
+   */
+  const myAction = async (name, value) => {
+    console.log("------====")
+    console.log(`${event.type}   |   ${event.threadId}   |${event.target}   | ${event.channel}`)
+    // console.log(event.payload)
+    console.log("------====")
+
+    if (event.type === "t62callback") {
+      if (event.preview) {
+        const aa = eval(event.preview)
+        console.log(aa.call(this))
+      }
+      console.log("///////////////////////////////")
+      return true
+    } else {
+      return reply("open!")
+    }
+
+  }
+
+  const reply = (msg) => {
+    event.payload.t62Settings = {
+      telegram: {
+        text: msg,
+        ...telegramConf.getBottonMenu()
+      }
+    }
+    if (event.direction === "incoming")
+      bp.events.sendEvent(
+        bp.IO.Event({
+          botId: event.botId,
+          channel: event.channel,
+          direction: 'outgoing',
+          payload: event.payload,
+          preview: "yyyyyyyyyyyyyy",
+          target: event.target,
+          threadId: event.threadId,
+          credentials: event.credentials,
+          type: "settings"
+
+        })
+      )
+  }
+
+  const nextOne = async function () {
+    console.log("---------nextOne-------------------")
+    reply("nextOne")
+  }
+  const backOne = async function () {
+    console.log("==========backOne====================")
+    reply("backOne")
+  }
+
+  return myAction(args.name, args.value)
+
+/** Your code ends here */
+}
+```
+
+
+
+------------------------------------
+base-action.js
+```
+const console = require('console')
+
+module.exports = async (data = null) => {
+  try {
+    if (event && event.type === 't62callback') {
+      if (event.preview) {
+        const func = eval(event.preview)
+        if (func && typeof func === 'function') return func.call(data)
+      }
+    }
+  } catch (e) {
+    console.error(e)
+  }
+  return false
+}
+```
+
+------------------------------------
+sceneUtilTelegram.js
+```
+const getBottonMenu = () => {
+  return {
+    buttons: {
+      type: 'inline',
+      buttons: [
+        { title: 'back', callback: 'backOne' },
+        { title: 'next', callback: 'nextOne' }
+      ]
+    }
+  }
+}
+
+
+module.exports = {
+  getBottonMenu
+}
+```
