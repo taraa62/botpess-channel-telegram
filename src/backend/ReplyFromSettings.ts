@@ -60,6 +60,7 @@ export class ReplyFromSettings {
     if (buttons && tBtn) {
       (edit as any).reply_markup = buttons
     }
+    (ctx as any).dataBtn = buttons
     await ctx.telegram.sendMessage(chatId, msg, edit)
 
   }
@@ -77,6 +78,7 @@ export class ReplyFromSettings {
       sett.buttons.map(v => {
         (v.url) ? res.push(getUrlBtn(v.title, v.url || v.payload, !!v.hide)) : res.push(getCallBackBtn(v.title, v.callback || v.payload, !!v.hide))
       })
+      res = this.checkGroupBtn(res)
       if (sett.type !== 'keyboard') {
         return Markup.inlineKeyboard(res)
       } else {
@@ -84,5 +86,30 @@ export class ReplyFromSettings {
       }
     }
     return res
+  }
+
+  private checkGroupBtn(buttons: any[]): any[] {
+    const temp = new Map()
+
+    for (let i = 0; i < buttons.length; i++) {
+      const b = buttons[i]
+      const key = b.payload || b.callback_data || b.title
+      if (key.indexOf('_GR') > -1) {
+        const gr = key.split('_GR')[1]
+        if (gr) {
+          const arr = temp.get(gr) ? temp.get(gr) : []
+          arr.push(b)
+          temp.set(gr, arr)
+        }
+      } else {
+        temp.set(key, [b])
+        // temp[key] = b
+      }
+    }
+
+    const res = []
+      Array.from(temp).forEach(v => res.push(v[1]))
+    return res
+
   }
 }

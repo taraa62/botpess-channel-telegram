@@ -12,14 +12,21 @@ export class ClientReceive {
     switch (receive.type) {
       case ClientEvent.CALLBACK_QUERY:
         if (receive.ctx.callbackQuery) {
-          receive.type = "t62callback"
-          this._sendEvent(receive, { text: 'callback', ctx: receive.ctx.callbackQuery }, receive.ctx.callbackQuery.data)
+          receive.type = 't62callback'
+          this._sendEvent(receive, {
+            text: 'callback',
+            callbackQuery: receive.ctx.callbackQuery, ...receive.ctx.from, ...receive.ctx.chat
+          }, receive.ctx.callbackQuery.data)
           break
         }
 
       default:
         if (receive.ctx.message && receive.ctx.message.text) {
-          this._sendEvent(receive, receive.ctx.message, receive.ctx.message.text)
+          this._sendEvent(receive, {
+            ...receive.ctx.from, ...receive.ctx.chat,
+            //message: receive.ctx.message,
+            text: receive.ctx.message.text
+          }, receive.ctx.message.text)
         }
         break
     }
@@ -31,7 +38,7 @@ export class ClientReceive {
 
     this.bp.events.sendEvent(
       this.bp.IO.Event({
-        botId:botId,
+        botId: botId,
         channel: 'telegram',
         direction: 'incoming',
         payload: ctx.message ? ctx.message : message,
