@@ -57,10 +57,12 @@ class ReplyToClient {
     const key = 'send_' + messageType; // if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId)
 
     if (messageType === 'typing') return await this.replyDefMethods[key](event, client, chatId);
-    if (key.indexOf('card') < 0 && key.indexOf('carousel') < 0) if (this.replyFromSettings.defaultSettings || event.payload.t62Settings) return await this.replyFromSettings.reply(event, client, chatId);
-    if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId); // TODO We don't support sending files, location requests (and probably more) yet
-
-    throw new Error(`Message type "${messageType}" not implemented yet`);
+    const isSend = await this.replyFromSettings.reply(messageType, event, client, chatId).catch(er => {
+      console.error(er);
+      return null;
+    }); // if (!isSend) if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId)
+    // TODO We don't support sending files, location requests (and probably more) yet
+    //  throw new Error(`Message type "${messageType}" not implemented yet`)
   }
 
 }

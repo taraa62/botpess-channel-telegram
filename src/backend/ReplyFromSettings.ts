@@ -24,8 +24,12 @@ export class ReplyFromSettings {
     this.defaultSettings = Object.assign(def, this.defaultSettings)
   }
 
-  public async reply(event: sdk.IO.Event, ctx: Telegraf<ContextMessageUpdate>, chatId: string): Promise<any> {
+  public async reply(eventType: String, event: sdk.IO.Event, ctx: Telegraf<ContextMessageUpdate>, chatId: string): Promise<any> {
+    if (eventType === 'carousel' || eventType === 'card') {
+      return this.sendCarousel(event, ctx, chatId)
+    }
 
+    if (eventType !== 'text') return false
     let buttons, edit: ExtraEditMessage, tBtn
     let msg = event.payload.text
     let settings: ITelegramSettings = event.payload.t62Settings ? event.payload.t62Settings.telegram : null
@@ -37,18 +41,20 @@ export class ReplyFromSettings {
       }
       tBtn = (!buttons) ? tBtn : (settings.buttons.type !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
     } else if (this.defaultSettings) {
-      buttons = this.getButtons({
-        type: this.defaultSettings.buttonType,
-        buttons: event.payload.elements || event.payload.quick_replies
-      })
-      edit = {
-        parse_mode: this.defaultSettings.parser
-        /*reply_markup:{
-        }*/
-      }
-
-
-      tBtn = (!buttons) ? tBtn : (this.defaultSettings.buttonType !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
+      /*  buttons = this.getButtons({
+          type: this.defaultSettings.buttonType,
+          buttons: event.payload.elements || event.payload.quick_replies
+        })
+        edit = {
+          parse_mode: this.defaultSettings.parse          /*reply_markup:{
+          }
+        }
+        tBtn = (!buttons) ? tBtn : (this.defaultSettings.buttonType !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
+          */
+      const defBtn = this.getButtonDef(event.payload.elements || event.payload.quick_replies)
+      buttons = defBtn.buttons
+      edit = defBtn.edit
+      tBtn = defBtn.eBtn
     }
 
     (edit as any).reply_markup = {
@@ -59,9 +65,50 @@ export class ReplyFromSettings {
     if (buttons && tBtn) {
       (edit as any).reply_markup = buttons
     }
-    (ctx as any).dataBtn = buttons
-    await ctx.telegram.sendMessage(chatId, msg, edit)
+    return await ctx.telegram.sendMessage(chatId, msg, edit)
 
+  }
+
+  private getButtonDef(butt: any[]): any {
+    let edit: ExtraEditMessage, tBtn
+    const buttons = this.getButtons({
+      type: this.defaultSettings.buttonType,
+      buttons: butt
+    })
+    edit = {
+      parse_mode:  "Markdown" //this.defaultSettings.parser
+      /*reply_markup:{
+      }*/
+    }
+    tBtn = (!buttons) ? tBtn : (this.defaultSettings.buttonType !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
+    return { buttons, edit, tBtn }
+  }
+
+
+  private async sendCarousel(event: sdk.IO.Event, ctx: Telegraf<ContextMessageUpdate>, chatId: string): Promise<any> {
+    if (this.defaultSettings) {
+      const elem = event.payload.elements[0]
+      const { buttons, edit, tBtn } = this.getButtonDef(elem.buttons)
+      const msg =
+        `${elem.title}
+         ${elem.subtitle}
+         [inline URL](tg:/api/v1/bots/test1/media/bvmdhm3ajfcfb4bx4uo6-Cat03.jpg)
+       `;
+      (edit as any).reply_markup = {
+        disable_web_page_preview:true,
+        one_time_keyboard: true,
+        resize_keyboard: true,
+        remove_keyboard: !buttons ? true : false
+      }
+      if (buttons && tBtn) {
+        (edit as any).reply_markup = buttons
+      }
+
+      await ctx.telegram.sendMessage(chatId, msg, edit)
+      return true
+    } else {
+      return this.replyDefMethods.send_carousel(event, ctx, chatId)
+    }
   }
 
   private getButtons(sett: ITelButtons) {
