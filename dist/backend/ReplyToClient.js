@@ -20,7 +20,7 @@ class ReplyToClient {
     this.bp = bp;
     this.bot = bot;
 
-    _defineProperty(this, "outgoingTypes", ['text', 'typing', 'image', 'login_prompt', 'carousel', 'settings']);
+    _defineProperty(this, "outgoingTypes", ['text', 'typing', 'image', 'login_prompt', 'carousel']);
 
     _defineProperty(this, "replyFromSettings", void 0);
 
@@ -54,10 +54,10 @@ class ReplyToClient {
       return next(new Error('Unsupported event type: ' + event.type));
     }
 
-    const key = 'send_' + messageType;
-    if (messageType === "typing") return await this.replyDefMethods[key](event, client, chatId);
-    if (this.replyFromSettings.defaultSettings) return await this.replyFromSettings.reply(event, client, chatId);
-    if (messageType === 'settings') return await this.replyFromSettings.reply(event, client, chatId);
+    const key = 'send_' + messageType; // if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId)
+
+    if (messageType === 'typing') return await this.replyDefMethods[key](event, client, chatId);
+    if (key.indexOf('card') < 0 && key.indexOf('carousel') < 0) if (this.replyFromSettings.defaultSettings || event.payload.t62Settings) return await this.replyFromSettings.reply(event, client, chatId);
     if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId); // TODO We don't support sending files, location requests (and probably more) yet
 
     throw new Error(`Message type "${messageType}" not implemented yet`);

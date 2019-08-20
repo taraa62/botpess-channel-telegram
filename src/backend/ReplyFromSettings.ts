@@ -26,8 +26,8 @@ export class ReplyFromSettings {
 
   public async reply(event: sdk.IO.Event, ctx: Telegraf<ContextMessageUpdate>, chatId: string): Promise<any> {
 
-    let buttons, edit: ExtraEditMessage, msg, tBtn
-
+    let buttons, edit: ExtraEditMessage, tBtn
+    let msg = event.payload.text
     let settings: ITelegramSettings = event.payload.t62Settings ? event.payload.t62Settings.telegram : null
     if (settings) {
       settings = Object.assign(settings, this.defaultSettings)
@@ -36,7 +36,6 @@ export class ReplyFromSettings {
         parse_mode: settings.parser || 'HTML'
       }
       tBtn = (!buttons) ? tBtn : (settings.buttons.type !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
-      msg = settings.text
     } else if (this.defaultSettings) {
       buttons = this.getButtons({
         type: this.defaultSettings.buttonType,
@@ -45,10 +44,10 @@ export class ReplyFromSettings {
       edit = {
         parse_mode: this.defaultSettings.parser
         /*reply_markup:{
-
         }*/
       }
-      msg = event.payload.text || event.preview || ''
+
+
       tBtn = (!buttons) ? tBtn : (this.defaultSettings.buttonType !== 'keyboard') ? 'inline_keyboard' : 'keyboard'
     }
 
@@ -93,7 +92,7 @@ export class ReplyFromSettings {
 
     for (let i = 0; i < buttons.length; i++) {
       const b = buttons[i]
-      const key = b.payload || b.callback_data || b.title
+      const key = (b.payload || b.callback_data || b.title).toLocaleUpperCase()
       if (key.indexOf('_GR') > -1) {
         const gr = key.split('_GR')[1]
         if (gr) {
@@ -108,7 +107,7 @@ export class ReplyFromSettings {
     }
 
     const res = []
-      Array.from(temp).forEach(v => res.push(v[1]))
+    Array.from(temp).forEach(v => res.push(v[1]))
     return res
 
   }

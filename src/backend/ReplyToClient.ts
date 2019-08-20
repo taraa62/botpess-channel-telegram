@@ -8,7 +8,7 @@ import { ReplyFromSettings } from './ReplyFromSettings'
 
 export class ReplyToClient {
 
-  private outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel', 'settings']
+  private outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
   private replyFromSettings: ReplyFromSettings
   private replyDefMethods: ReplyDefMethods
 
@@ -41,10 +41,13 @@ export class ReplyToClient {
     }
 
     const key = 'send_' + messageType
-    if(messageType === "typing")return await this.replyDefMethods[key](event, client, chatId)
-    if (this.replyFromSettings.defaultSettings) return await this.replyFromSettings.reply(event, client, chatId)
-    if (messageType === 'settings') return await this.replyFromSettings.reply(event, client, chatId)
 
+    // if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId)
+
+    if (messageType === 'typing') return await this.replyDefMethods[key](event, client, chatId)
+
+    if (key.indexOf('card') < 0 && key.indexOf('carousel') < 0)
+      if (this.replyFromSettings.defaultSettings || event.payload.t62Settings) return await this.replyFromSettings.reply(event, client, chatId)
 
     if (this.replyDefMethods[key]) return await this.replyDefMethods[key](event, client, chatId)
 

@@ -28,7 +28,8 @@ class ReplyFromSettings {
   }
 
   async reply(event, ctx, chatId) {
-    let buttons, edit, msg, tBtn;
+    let buttons, edit, tBtn;
+    let msg = event.payload.text;
     let settings = event.payload.t62Settings ? event.payload.t62Settings.telegram : null;
 
     if (settings) {
@@ -38,7 +39,6 @@ class ReplyFromSettings {
         parse_mode: settings.parser || 'HTML'
       };
       tBtn = !buttons ? tBtn : settings.buttons.type !== 'keyboard' ? 'inline_keyboard' : 'keyboard';
-      msg = settings.text;
     } else if (this.defaultSettings) {
       buttons = this.getButtons({
         type: this.defaultSettings.buttonType,
@@ -47,10 +47,9 @@ class ReplyFromSettings {
       edit = {
         parse_mode: this.defaultSettings.parser
         /*reply_markup:{
-         }*/
+        }*/
 
       };
-      msg = event.payload.text || event.preview || '';
       tBtn = !buttons ? tBtn : this.defaultSettings.buttonType !== 'keyboard' ? 'inline_keyboard' : 'keyboard';
     }
 
@@ -101,7 +100,7 @@ class ReplyFromSettings {
 
     for (let i = 0; i < buttons.length; i++) {
       const b = buttons[i];
-      const key = b.payload || b.callback_data || b.title;
+      const key = (b.payload || b.callback_data || b.title).toLocaleUpperCase();
 
       if (key.indexOf('_GR') > -1) {
         const gr = key.split('_GR')[1];

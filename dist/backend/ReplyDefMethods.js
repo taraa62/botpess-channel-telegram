@@ -51,7 +51,7 @@ class ReplyDefMethods {
     }
   }
 
-  async sendCarousel(event, client, chatId) {
+  async send_carousel(event, client, chatId) {
     if (event.payload.elements && event.payload.elements.length) {
       const {
         title,

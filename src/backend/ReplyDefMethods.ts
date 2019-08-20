@@ -53,7 +53,7 @@ export class ReplyDefMethods {
     }
   }
 
-  public async sendCarousel(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
+  public async send_carousel(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
     if (event.payload.elements && event.payload.elements.length) {
       const { title, picture, subtitle } = event.payload.elements[0]
       const buttons = event.payload.elements.map(x => x.buttons)
