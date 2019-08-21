@@ -90,19 +90,6 @@ bt1 | bt2                    bt1                 bt1 | bt2 |bt3
 ```
 id is added to - payload or callback
 
---------
-checking callback:
-```js
-action file
-    const key = (event.payload.ctx) ? event.payload.ctx.data : event.payload.text
-
-    if (key === 'nextOne' || key === 'Next') {
-        your code here
-    }
-
-need update!!! 
-```
-
 --------- 
 for text 
 `
