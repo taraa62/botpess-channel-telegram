@@ -61,11 +61,7 @@ only for telegram!
         bp.events.replyToEvent(event, pay);
       }
 ```
-To create a group of buttons, you can use "_gr${id}"
-```
-bt1 | bt2                    bt1
-    bt3                   bt2  | bt3
-```
+
 ---------
 config for item button:
 ```ts
@@ -86,7 +82,13 @@ additional parameters "btn1_gr1". Here "_gr1" indicates that the group is for bu
  { title: 'btn2', payload: 'btn1_gr2' },
  { title: 'btn22', payload: 'btn2_gr2' },
 '''
-Configuration data supported for "choice" only
+To create a group of buttons, you can use "_gr${groupId}"
+```
+bt1 | bt2                    bt1                 bt1 | bt2 |bt3
+   bt3                   bt2  | bt3                bt4  | bt5
+                                                       bt6
+```
+id is added to - payload or callback
 
 --------
 checking callback:
