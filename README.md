@@ -1,5 +1,5 @@
-# botpess-channel-telegram
-botpress channel for telegram messenger
+# botpess-channel-telegramv
+channel telegram messenger for botpress
 
 ----------
 
@@ -37,30 +37,35 @@ event.payload.t62Settings = {
         }
 }
 ```
-and you must send new event:
+full code with group for buttons (in your actions):
+only for telegram!
 ```js
-const reply = () => {
-    if (event.direction === "incoming")
-      bp.events.sendEvent(
-        bp.IO.Event({
-          botId: event.botId,
-          channel: event.channel,
-          direction: 'outgoing',
-          payload: event.payload,
-          preview: "yyyyyyyyyyyyyy",
-          target: event.target,
-          threadId: event.threadId,
-          credentials: event.credentials,
-          type: "settings"
-
-        })
-      )
-
-    event.direction = "outgoing"  //for stop old event
-  }
+  if (event.channel === 'telegram') {
+        const data = {
+          text: msg,
+          typing: true
+        }
+        const pay = await bp.cms.renderElement("builtin_text", data, event);
+        pay[1].t62Settings = {
+          telegram: {
+            buttons: {
+              type: 'keyboard',
+              buttons: [
+                { title: 'btn1', callback: 'btn1_gr1' },
+                { title: 'btn2', callback: 'btn2_gr1' },
+                { title: 'btn3', callback: 'btn3' }
+              ]
+            }
+          }
+        }
+        bp.events.replyToEvent(event, pay);
+      }
 ```
-I don't think it's a good solution, but it works, maybe then fixed
-
+To create a group of buttons, you can use "_gr${id}"
+```
+bt1 | bt2                    bt1
+    bt3                   bt2  | bt3
+```
 ---------
 config for item button:
 ```ts
