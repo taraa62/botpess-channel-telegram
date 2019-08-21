@@ -67,6 +67,27 @@ only for telegram!
           }
         }
         bp.events.replyToEvent(event, pay);
+      }else {
+      //for channel === 'web'
+        const data = {
+          items: [
+            {
+              title: "carousel",
+              image: info.image,
+              subtitle: "swqdsw",
+              actions: [
+                {
+                  action: "Postback",
+                  title: "hello",
+                  payload: "btn1"
+
+                }
+              ]
+            }
+          ]
+        }
+        const pay = await bp.cms.renderElement("builtin_carousel", data, event);
+        bp.events.replyToEvent(event, pay);
       }
 ```
 
