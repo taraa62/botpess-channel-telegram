@@ -81,8 +81,7 @@ class ReplyFromSettings {
       buttons: butt
     });
     edit = {
-      parse_mode: "Markdown" //this.defaultSettings.parser
-
+      parse_mode: this.defaultSettings.parser
       /*reply_markup:{
       }*/
 
@@ -103,9 +102,10 @@ class ReplyFromSettings {
         edit,
         tBtn
       } = this.getButtonDef(elem.buttons);
+      const img = elem.picture.indexOf("localhost") > -1 ? "The picture from localhost is not displayed in the telegram" : "Photo";
       const msg = `${elem.title}
          ${elem.subtitle}
-         [inline URL](tg:/api/v1/bots/test1/media/bvmdhm3ajfcfb4bx4uo6-Cat03.jpg)
+        <a href='${elem.picture}'>${img}</a>
        `;
       edit.reply_markup = {
         disable_web_page_preview: true,

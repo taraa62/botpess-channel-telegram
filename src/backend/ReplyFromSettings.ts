@@ -89,10 +89,12 @@ export class ReplyFromSettings {
     if (this.defaultSettings) {
       const elem = event.payload.elements[0]
       const { buttons, edit, tBtn } = this.getButtonDef(elem.buttons)
+
+      const img = (elem.picture.indexOf("localhost")>-1)?"The picture from localhost is not displayed in the telegram":"Photo";
       const msg =
         `${elem.title}
          ${elem.subtitle}
-        <a href='${elem.picture}'></a>
+        <a href='${elem.picture}'>${img}</a>
        `;
       (edit as any).reply_markup = {
         disable_web_page_preview:true,
