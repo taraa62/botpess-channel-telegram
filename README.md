@@ -1,6 +1,14 @@
 # botpess-channel-telegramv
 channel telegram messenger for botpress
+----------
+install:
+1. download dist folder
+2. create new folder to /modules/channel-telegram-t62
+3. open botpress config = .../data/global/botpress.config.json 
+disable default channel-telegram and add new - channel-telegram-t62
+4. start/restart server
 
+P/S I don't testing this steps.
 ----------
 
 global config [config:channel-telegram-t62.json]
