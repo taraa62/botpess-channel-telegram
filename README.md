@@ -1,5 +1,5 @@
-# botpess-channel-telegram
-botpress channel for telegram messenger
+# botpess-channel-telegramv
+channel telegram messenger for botpress
 
 ----------
 
@@ -37,29 +37,30 @@ event.payload.t62Settings = {
         }
 }
 ```
-and you must send new event:
+full code with group for buttons (in your actions):
+only for telegram!
 ```js
-const reply = () => {
-    if (event.direction === "incoming")
-      bp.events.sendEvent(
-        bp.IO.Event({
-          botId: event.botId,
-          channel: event.channel,
-          direction: 'outgoing',
-          payload: event.payload,
-          preview: "yyyyyyyyyyyyyy",
-          target: event.target,
-          threadId: event.threadId,
-          credentials: event.credentials,
-          type: "settings"
-
-        })
-      )
-
-    event.direction = "outgoing"  //for stop old event
-  }
+  if (event.channel === 'telegram') {
+        const data = {
+          text: msg,
+          typing: true
+        }
+        const pay = await bp.cms.renderElement("builtin_text", data, event);
+        pay[1].t62Settings = {
+          telegram: {
+            buttons: {
+              type: 'keyboard',
+              buttons: [
+                { title: 'btn1', callback: 'btn1_gr1' },
+                { title: 'btn2', callback: 'btn2_gr1' },
+                { title: 'btn3', callback: 'btn3' }
+              ]
+            }
+          }
+        }
+        bp.events.replyToEvent(event, pay);
+      }
 ```
-I don't think it's a good solution, but it works, maybe then fixed
 
 ---------
 config for item button:
@@ -75,29 +76,66 @@ export interface ITelButtonsItem {
 Creating Button Groups:
 To do this you need to specify in payload || callback_data || title
 additional parameters "btn1_gr1". Here "_gr1" indicates that the group is for button 1
-'''
+```
  { title: 'btn1', callback: 'btn1_gr1' },
  { title: 'btn11', callback: 'btn2_gr1' },
  { title: 'btn2', payload: 'btn1_gr2' },
  { title: 'btn22', payload: 'btn2_gr2' },
-'''
-Configuration data supported for "choice" only
-
---------
-checking callback:
-```js
-action file
-    const key = (event.payload.ctx) ? event.payload.ctx.data : event.payload.text
-
-    if (key === 'nextOne' || key === 'Next') {
-        your code here
-    }
-
-need update!!! 
 ```
+To create a group of buttons, you can use "_gr${groupId}"
+```
+bt1 | bt2                    bt1                 bt1 | bt2 |bt3
+   bt3                   bt2  | bt3                bt4  | bt5
+                                                       bt6
+```
+id is added to - payload or callback
 
 --------- 
 for text 
 `
 {{event.payload.from.username}}
 `
+
+----------
+work with card and carousel
+To process button clicks, you need to add to the section 'global / before_incoming_middleware / post_back'
+following code:
+  ```
+  async function hook() {
+    if (event.type === 'postback') {
+      event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+      event.type = "callback";
+
+      this.bp.events.sendEvent(
+        this.bp.IO.Event({
+          botId: event.botId,
+          channel: event.channel,
+          direction: 'incoming',
+          payload: event.payload,
+          preview: event.preview,
+          threadId: event.threadId,
+          target: event.target,
+          type: "callback"
+        })
+      )
+    }
+    //  console.log(event)
+  }
+
+  return hook()
+  ```
+translate our 'event' with 'postBack' => 'callBack' and catch in 'action'
+for example:
+```
+const myAction = async (name, value) => {
+    console.log(event.payload)
+    const callback = (event.channel === 'telegram') ? event.preview : event.payload.payload
+
+    let element = {
+      text: callback === 'btn1' ? "hello btn1" : "????",
+      typing: true
+    };
+    const payloads = await bp.cms.renderElement("builtin_text", element, event);
+    bp.events.replyToEvent(event, payloads);
+  }
+```
