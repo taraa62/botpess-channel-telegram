@@ -1,4 +1,4 @@
-# botpess-channel-telegramv
+# botpess-channel-telegram
 channel telegram messenger for botpress
 ----------
 install:
