@@ -108,3 +108,47 @@ for text
 `
 {{event.payload.from.username}}
 `
+
+----------
+work with card and carousel
+To process button clicks, you need to add to the section 'global / before_incoming_middleware / post_back'
+following code:
+  ```
+  async function hook() {
+    if (event.type === 'postback') {
+      event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+      event.type = "callback";
+
+      this.bp.events.sendEvent(
+        this.bp.IO.Event({
+          botId: event.botId,
+          channel: event.channel,
+          direction: 'incoming',
+          payload: event.payload,
+          preview: event.preview,
+          threadId: event.threadId,
+          target: event.target,
+          type: "callback"
+        })
+      )
+    }
+    //  console.log(event)
+  }
+
+  return hook()
+  ```
+translate our 'event' with 'postBack' => 'callBack' and catch in 'action'
+for example:
+```
+const myAction = async (name, value) => {
+    console.log(event.payload)
+    const callback = (event.channel === 'telegram') ? event.preview : event.payload.payload
+
+    let element = {
+      text: callback === 'btn1' ? "hello btn1" : "????",
+      typing: true
+    };
+    const payloads = await bp.cms.renderElement("builtin_text", element, event);
+    bp.events.replyToEvent(event, payloads);
+  }
+```
