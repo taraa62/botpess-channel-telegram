@@ -61,8 +61,8 @@ only for telegram!
             buttons: {
               type: 'keyboard',
               buttons: [
-                { title: 'btn1', callback: 'btn1_gr1' },
-                { title: 'btn2', callback: 'btn2_gr1' },
+                { title: 'btn1', callback: 'btn1_gr1' },      //  btn1 | btn2
+                { title: 'btn2', callback: 'btn2_gr1' },      //      btn3
                 { title: 'btn3', callback: 'btn3' }
               ]
             }
@@ -109,8 +109,8 @@ To do this you need to specify in payload || callback_data || title
 additional parameters "btn1_gr1". Here "_gr1" indicates that the group is for button 1
 ```
  { title: 'btn1', callback: 'btn1_gr1' },
- { title: 'btn11', callback: 'btn2_gr1' },
- { title: 'btn2', payload: 'btn1_gr2' },
+ { title: 'btn11', callback: 'btn2_gr1' },        btn1 | btn11
+ { title: 'btn2', payload: 'btn1_gr2' },          btn2 | btn22
  { title: 'btn22', payload: 'btn2_gr2' },
 ```
 To create a group of buttons, you can use "_gr${groupId}"
