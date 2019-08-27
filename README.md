@@ -8,6 +8,8 @@ install:
 disable default channel-telegram and add new - channel-telegram-t62
 4. start/restart server
 
+//https://help.botpress.io/t/adding-new-module-to-docker/2129/3
+//https://help.botpress.io/t/creating-a-new-module/1989/8
 P/S I don't testing this steps.
 ----------
 
